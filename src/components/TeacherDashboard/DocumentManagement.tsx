@@ -1,8 +1,9 @@
 import React from 'react'
+import PrivateFiles from '../CouresDashboard/PrivateFiles'
 
 function DocumentManagement() {
   return (
-    <div>DocumentManagement</div>
+    <PrivateFiles />
   )
 }
 
