@@ -3,11 +3,12 @@ import React, { useState, useEffect } from 'react';
 const AssignmentManagement = () => {
   const [assignmentName, setAssignmentName] = useState('');
   const [deadline, setDeadline] = useState('');
-  const [courseID, setCourseID] = useState(''); // Thêm trường courseID
-  const [lessonID, setLessonID] = useState(''); // Thêm trường lessonID
+  const [courseID, setCourseID] = useState('');
+  const [lessonID, setLessonID] = useState('');
+  const [file, setFile] = useState(null); // State for the uploaded file
+  const [description, setDescription] = useState('');
   const [assignments, setAssignments] = useState([]);
 
-  // Load assignments from local storage when the component mounts
   useEffect(() => {
     const storedAssignments = localStorage.getItem('assignments');
     if (storedAssignments) {
@@ -15,7 +16,6 @@ const AssignmentManagement = () => {
     }
   }, []);
 
-  // Save assignments to local storage when they change
   useEffect(() => {
     localStorage.setItem('assignments', JSON.stringify(assignments));
   }, [assignments]);
@@ -25,23 +25,45 @@ const AssignmentManagement = () => {
     const newAssignment = {
       assignmentName,
       deadline,
-      courseID, // Lưu courseID vào assignment
-      lessonID, // Lưu lessonID vào assignment
+      courseID,
+      lessonID,
+      file, // Save the file in the assignment
+      description, // Save the description
     };
     setAssignments((prevAssignments) => [...prevAssignments, newAssignment]);
-    // Reset form fields
     setAssignmentName('');
     setDeadline('');
     setCourseID('');
     setLessonID('');
+    setFile(null); // Reset the file state
+    setDescription('');
   };
 
   const handleCancel = () => {
-    // Reset form fields
     setAssignmentName('');
     setDeadline('');
     setCourseID('');
     setLessonID('');
+    setFile(null); // Reset the file state
+    setDescription('');
+  };
+
+  const handleEdit = (assignmentIndex) => {
+    const assignmentToEdit = assignments[assignmentIndex];
+    setAssignmentName(assignmentToEdit.assignmentName);
+    setDeadline(assignmentToEdit.deadline);
+    setCourseID(assignmentToEdit.courseID);
+    setLessonID(assignmentToEdit.lessonID);
+    setFile(assignmentToEdit.file);
+    setDescription(assignmentToEdit.description);
+
+    const updatedAssignments = assignments.filter((_, index) => index !== assignmentIndex);
+    setAssignments(updatedAssignments);
+  };
+
+  const handleDelete = (assignmentIndex) => {
+    const updatedAssignments = assignments.filter((_, index) => index !== assignmentIndex);
+    setAssignments(updatedAssignments);
   };
 
   return (
@@ -84,6 +106,23 @@ const AssignmentManagement = () => {
             className="w-full p-2 border rounded"
           />
         </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Upload Assignment File</label>
+          <input
+            type="file"
+            accept=".docx"
+            onChange={(e) => setFile(e.target.files[0])}
+            className="w-full p-2 border rounded"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Description</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full p-2 border rounded"
+          />
+        </div>
         <div className="flex justify-end gap-2">
           <button
             type="button"
@@ -101,7 +140,6 @@ const AssignmentManagement = () => {
         </div>
       </form>
 
-      {/* Table to display the list of added assignments */}
       {assignments.length > 0 && (
         <div className="mt-8 overflow-x-auto">
           <h3 className="text-xl font-semibold mb-4">Assignments List</h3>
@@ -112,6 +150,7 @@ const AssignmentManagement = () => {
                 <th className="px-4 py-2">Deadline</th>
                 <th className="px-4 py-2">Course ID</th>
                 <th className="px-4 py-2">Lesson ID</th>
+                <th className="px-4 py-2">Description</th>
                 <th className="px-4 py-2">Actions</th>
               </tr>
             </thead>
@@ -122,15 +161,16 @@ const AssignmentManagement = () => {
                   <td className="px-4 py-2">{assignment.deadline}</td>
                   <td className="px-4 py-2">{assignment.courseID}</td>
                   <td className="px-4 py-2">{assignment.lessonID}</td>
+                  <td className="px-4 py-2">{assignment.description}</td>
                   <td className="px-4 py-2">
                     <button
-                      onClick={() => handleEdit(assignment.id)}
+                      onClick={() => handleEdit(index)}
                       className="px-3 py-1 text-sm text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(assignment.id)}
+                      onClick={() => handleDelete(index)}
                       className="px-3 py-1 text-sm text-white bg-red-500 rounded hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
                     >
                       Delete

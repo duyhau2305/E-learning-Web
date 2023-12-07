@@ -40,7 +40,7 @@ const Dashboard = () => {
             <FaHome /><span>Dashboard</span>
           </a>
           <a href="#" className="flex items-center space-x-2 hover:text-blue-300" onClick={() => setActiveComponent('document management')}>
-            <FaFileAlt /><span>Document Management</span>
+            <FaFileAlt /><span>PrivteFiles Management</span>
           </a>
           <a href="#" className="flex items-center space-x-2 hover:text-blue-300" onClick={() => setActiveComponent('course management')}>
             <FaChalkboardTeacher /><span>Courses Managements</span>

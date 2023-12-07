@@ -1,14 +1,24 @@
-import {
-  MdChevronLeft,
-  MdChevronRight,
-  MdKeyboardArrowDown,
-} from "react-icons/md";
-import { courses, filters } from "../configs/fakeData";
-
+import React, { useState } from 'react';
+import { MdChevronLeft, MdChevronRight, MdKeyboardArrowDown, MdSearch } from "react-icons/md";
 import { BiAbacus } from "react-icons/bi";
 import ListCourses from "../components/ListCourses";
+import { courses, filters } from "../configs/fakeData";
 
 export default function Courses() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredCourses, setFilteredCourses] = useState(courses);
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleSearch = () => {
+    const searchResult = courses.filter(course =>
+      course.nameCourse.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredCourses(searchResult);
+  };
+
   return (
     <>
       <div
@@ -30,9 +40,8 @@ export default function Courses() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 w-full gap-2">
             {filters.map((f, i) => (
-              <div className="relative">
+              <div className="relative" key={i}>
                 <select
-                  key={i}
                   className="rounded p-2.5 outline-none w-full appearance-none"
                 >
                   {f.options.map((o, ix) => (
@@ -47,6 +56,21 @@ export default function Courses() {
           </div>
         </div>
       </div>
+      <div className="container max-w-[740px] mx-auto px-4 py-6">
+        {/* Search Input and Button */}
+        <div className="flex gap-2 mb-4">
+          <input
+            type="text"
+            placeholder="Search courses"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="w-full p-2 rounded border"
+          />
+          <button onClick={handleSearch} className="bg-primary text-white p-2 rounded">
+            <MdSearch size={20}/>
+          </button>
+        </div>
+      </div>
       <div className="container max-w-[1340px] mx-auto px-4 py-28">
         <div className="flex w-full justify-between mb-6">
           <p>Showing 1-6 of 10 results</p>
@@ -54,14 +78,14 @@ export default function Courses() {
             <p>Sort by:</p>
             <select className="bg-secondary outline-none primary-color">
               {filters
-                .find((f) => f.type == "skills")
+                .find((f) => f.type === "skills")
                 ?.options.map((o, i) => (
                   <option key={i} className="primary-color bg-white">{o}</option>
                 ))}
             </select>
           </div>
         </div>
-        <ListCourses courses={courses} />
+        <ListCourses courses={filteredCourses} />
         <div className="flex justify-center items-center mt-10 gap-3">
           <a className="bg-white w-12 h-12 rounded-full flex items-center justify-center text-black shadow">
             <MdChevronLeft size={20} />

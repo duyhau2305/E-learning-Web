@@ -14,6 +14,7 @@ import Blog from '../pages/Home/Blog';
 import Forum from '../pages/Home/Forum';
 import Dashboard from '../pages/Dashboard';
 import TeacherDashboard from '../pages/TeacherDashboard.tsx';
+import AdminDashboard from '../pages/AdminDashboard.tsx';
 
 
 export default function Routers() {
@@ -32,6 +33,7 @@ export default function Routers() {
           )}
             {/* <Route path="/teacherdashboard" element={<TeacherDashboard />} /> */}
           <Route path="/teacherdashboard" element={<TeacherDashboard/>} />
+          {/* <Route path="/admindashboard" element={<AdminDashboard/>} /> */}
 
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/courses" element={<Courses />} />

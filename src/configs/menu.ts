@@ -50,5 +50,6 @@ export const menus = [
     title: "TeacherDashboard",
     link: "/teacherdashboard",
     subMenu: []
-  }
+  },
+  // s
 ];

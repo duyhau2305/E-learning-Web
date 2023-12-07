@@ -12,6 +12,8 @@ const initialAccount = {
   phone: '0123456789',
   gender: 'Male',
   job: 'Assistant Teacher',
+  username: 'wsmith93',
+  password: 'mySecurePassword',
 };
 
 export default function Profile() {
@@ -26,6 +28,13 @@ export default function Profile() {
 
   // State to manage dialog visibility
   const [showDialog, setShowDialog] = useState(false);
+
+  // State to manage new password and modal visibility
+  const [newPassword, setNewPassword] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [oldPassword, setOldPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // Update local storage when account state changes
   useEffect(() => {
@@ -46,17 +55,44 @@ export default function Profile() {
       reader.readAsDataURL(e.target.files[0]);
     }
   };
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   // Function to show dialog and hide it after 3 seconds
-  const displayDialog = () => {
-    setShowDialog(true);
+  const displayDialog = (message) => {
+    setShowDialog(message);
     setTimeout(() => setShowDialog(false), 1000);
   };
 
-  // Modify saveChanges to show dialog
+  // Function to save changes
   const saveChanges = () => {
     setEditMode(false);
-    displayDialog();
+    displayDialog('profileUpdate');
+  };
+
+  // Function to open the change password modal
+  const openChangePasswordModal = () => {
+    setModalVisible(true);
+  };
+
+  // Function to close the change password modal
+  const closeChangePasswordModal = () => {
+    setModalVisible(false);
+  };
+
+  // Function to change password
+  const changePassword = () => {
+    if (newPassword === confirmPassword) {
+      setAccount({ ...account, password: newPassword });
+      setNewPassword('');
+      setOldPassword('');
+      setConfirmPassword('');
+      closeChangePasswordModal();
+      displayDialog('passwordChange');
+    } else {
+      alert('New password and confirm password must match.');
+    }
   };
 
   const toggleEditMode = () => {
@@ -82,7 +118,11 @@ export default function Profile() {
       <div className="container max-w-[1340px] mx-auto px-2 py-4 flex gap-8">
         {/* Avatar and name section */}
         <div className="w-1/3 bg-white shadow p-10 flex flex-col items-center gap-4">
-          <img src={account.avatar} className="max-w-[150px] rounded-full" alt="Avatar" />
+          <img
+            src={account.avatar}
+            className="max-w-[150px] rounded-full"
+            alt="Avatar"
+          />
           {editMode ? (
             <>
               <input
@@ -102,7 +142,9 @@ export default function Profile() {
             </>
           ) : (
             <>
-              <p className="text-2xl font-bold text-black">{account.fullName}</p>
+              <p className="text-2xl font-bold text-black">
+                {account.fullName}
+              </p>
               <p className="text-lg">{account.job}</p>
             </>
           )}
@@ -110,6 +152,48 @@ export default function Profile() {
 
         {/* Profile details section */}
         <div className="flex-1 bg-white shadow p-10">
+          <div className="flex gap-48 border-b p-4 pl-0">
+            <p className="text-black font-bold w-1/5">Username</p>
+            {editMode ? (
+              <input
+                type="text"
+                name="username"
+                value={account.username}
+                onChange={handleInputChange}
+                className="font-bold"
+              />
+            ) : (
+              <p className="font-bold">{account.username}</p>
+            )}
+          </div>
+
+          {/* Password */}
+          <div className="flex gap-48 border-b p-4 pl-0">
+            <p className="text-black font-bold w-1/5">Password</p>
+            {editMode ? (
+              <div className="flex items-center">
+               <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="font-bold"
+            />
+            <button onClick={togglePasswordVisibility} className="ml-2">
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
+                <button
+                  onClick={openChangePasswordModal}
+                  className="px-2 py-1 bg-blue-500 text-white rounded ml-2"
+                >
+                  Change Password
+                </button>
+              </div>
+            ) : (
+              <p className="font-bold">[Hidden]</p>
+            )}
+          </div>
+
           {/* Full Name */}
           <div className="flex gap-48 border-b p-4 pl-0">
             <p className="text-black font-bold w-1/5">Full Name</p>
@@ -211,29 +295,84 @@ export default function Profile() {
       <div className="container mx-auto text-center py-5">
         {editMode ? (
           <>
-            <button onClick={saveChanges} className="px-4 py-2 bg-green-500 text-white rounded">Save Changes</button>
-            <button onClick={() => setEditMode(false)} className="px-4 py-2 bg-red-500 text-white rounded">Cancel</button>
+            <button
+              onClick={saveChanges}
+              className="px-4 py-2 bg-green-500 text-white rounded"
+            >
+              Save Changes
+            </button>
+            <button
+              onClick={() => setEditMode(false)}
+              className="px-4 py-2 bg-red-500 text-white rounded"
+            >
+              Cancel
+            </button>
           </>
         ) : (
-          <button onClick={toggleEditMode} className="px-4 py-2 bg-blue-500 text-white rounded">Edit Profile</button>
+          <button
+            onClick={toggleEditMode}
+            className="px-4 py-2 bg-blue-500 text-white rounded"
+          >
+            Edit Profile
+          </button>
         )}
       </div>
 
       {/* Success Dialog */}
       {showDialog && (
-        <div style={{
-          position: 'fixed',
-          top: '80px', // Aligns to the top of the viewport
-          right: '20px', // Aligns to the right of the viewport
-          backgroundColor: '#F16126',
-          color: 'white',
-          padding: '10px',
-          border: '1px solid #fdfdfd73',
-          borderRadius: '5px',
-          boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
-          zIndex: 1000 // Ensures it's above other elements
-        }}>
-          <p>Profile Updated Successfully!</p>
+        <div className="fixed bottom-4 right-0 m-4 p-4 bg-orange-500 text-white rounded shadow-lg z-50">
+          {showDialog === 'profileUpdate' && <p>Profile Updated Successfully!</p>}
+          {showDialog === 'passwordChange' && <p>Password Changed Successfully!</p>}
+        </div>
+      )}
+
+      {/* Change Password Modal */}
+      {modalVisible && (
+        <div className="fixed top-28 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white w-96 p-4 rounded-lg shadow-md">
+            <h2 className="text-2xl font-bold mb-4">Change Password</h2>
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-1">Old Password:</label>
+              <input
+                type="password"
+                value={oldPassword}
+                onChange={(e) => setOldPassword(e.target.value)}
+                className="w-full px-3 py-2 border rounded-lg"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-1">New Password:</label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full px-3 py-2 border rounded-lg"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-1">Confirm Password:</label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-3 py-2 border rounded-lg"
+              />
+            </div>
+            <div className="text-center">
+              <button
+                onClick={changePassword}
+                className="px-4 py-2 bg-blue-500 text-white rounded mr-2"
+              >
+                Save Changes
+              </button>
+              <button
+                onClick={closeChangePasswordModal}
+                className="px-4 py-2 bg-red-500 text-white rounded"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </>
